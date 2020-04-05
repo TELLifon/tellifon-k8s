@@ -1,0 +1,6 @@
+web:
+  image:
+    repository: tellifon/web
+  ingress:
+    host: meet.tellifon.ch
+

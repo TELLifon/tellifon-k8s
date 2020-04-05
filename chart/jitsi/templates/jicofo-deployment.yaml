@@ -1,0 +1,60 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "jitsi.jicofo.fullname" . }}
+  labels:
+    {{- include "jitsi.jicofo.labels" . | nindent 4 }}
+spec:
+  replicas: {{ .Values.jicofo.replicaCount }}
+  selector:
+    matchLabels:
+      {{- include "jitsi.jicofo.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      labels:
+        {{- include "jitsi.jicofo.selectorLabels" . | nindent 8 }}
+    spec:
+    {{- with .Values.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+    {{- end }}
+      serviceAccountName: {{ include "jitsi.serviceAccountName" . }}
+      securityContext:
+        {{- toYaml .Values.podSecurityContext | nindent 8 }}
+      containers:
+        - name: {{ .Chart.Name }}
+          envFrom:
+          - configMapRef:
+              name: {{ include "jitsi.fullname" . }}
+          - secretRef:
+              name: {{ include "jitsi.fullname" . }}
+          securityContext:
+            {{- toYaml .Values.securityContext | nindent 12 }}
+          image: "{{ .Values.jicofo.image.repository }}:{{ .Values.jicofo.image.tag }}"
+          imagePullPolicy: {{ .Values.jicofo.image.pullPolicy }}
+          ports:
+            - name: http
+              containerPort: 8888
+              protocol: TCP
+          livenessProbe:
+            httpGet:
+              path: /about/health
+              port: http
+          readinessProbe:
+            httpGet:
+              path: /about/health
+              port: http
+          resources:
+            {{- toYaml .Values.jicofo.resources | nindent 12 }}
+      {{- with .Values.jicofo.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+    {{- with .Values.jicofo.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+    {{- end }}
+    {{- with .Values.jicofo.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+    {{- end }}

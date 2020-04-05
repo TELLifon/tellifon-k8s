@@ -1,0 +1,66 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "jitsi.prosody.fullname" . }}
+  labels:
+    {{- include "jitsi.prosody.labels" . | nindent 4 }}
+spec:
+  replicas: {{ .Values.prosody.replicaCount }}
+  selector:
+    matchLabels:
+      {{- include "jitsi.prosody.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      labels:
+        {{- include "jitsi.prosody.selectorLabels" . | nindent 8 }}
+    spec:
+    {{- with .Values.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+    {{- end }}
+      serviceAccountName: {{ include "jitsi.serviceAccountName" . }}
+      securityContext:
+        {{- toYaml .Values.podSecurityContext | nindent 8 }}
+      containers:
+        - name: {{ .Chart.Name }}
+          envFrom:
+          - configMapRef:
+              name: {{ include "jitsi.fullname" . }}
+          - secretRef:
+              name: {{ include "jitsi.fullname" . }}
+          securityContext:
+            {{- toYaml .Values.securityContext | nindent 12 }}
+          image: "{{ .Values.prosody.image.repository }}:{{ .Values.prosody.image.tag }}"
+          imagePullPolicy: {{ .Values.prosody.image.pullPolicy }}
+          ports:
+            - name: bosh
+              containerPort: 5280
+              protocol: TCP
+            - name: xmpp
+              containerPort: 5222
+              protocol: TCP
+            - name: components
+              containerPort: 5347
+              protocol: TCP
+          livenessProbe:
+            httpGet:
+              path: /http-bind
+              port: bosh
+          readinessProbe:
+            httpGet:
+              path: /http-bind
+              port: bosh
+          resources:
+            {{- toYaml .Values.prosody.resources | nindent 12 }}
+      {{- with .Values.prosody.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+    {{- with .Values.prosody.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+    {{- end }}
+    {{- with .Values.prosody.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+    {{- end }}

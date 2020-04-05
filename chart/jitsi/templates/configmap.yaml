@@ -1,0 +1,73 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "jitsi.fullname" . }}
+  labels:
+    {{- include "jitsi.labels" . | nindent 4 }}
+data:
+  DISABLE_HTTPS: '1'
+  DOCKER_HOST_ADDRESS: {{ .Values.web.ingress.host }}
+  ENABLE_AUTH: ''
+  ENABLE_GUESTS: ''
+  ENABLE_HTTP_REDIRECT: ''
+  ENABLE_LETSENCRYPT: ''
+  ENABLE_RECORDING: ''
+  ENABLE_TRANSCRIPTIONS: ''
+  GLOABL_MODULES: ''
+  JIBRI_BREWERY_MUC: jibribrewery
+  JIBRI_FINALIZE_RECORDING_SCRIPT_PATH: /config/finalize.sh
+  JIBRI_LOGS_DIR: /config/logs
+  JIBRI_PENDING_TIMEOUT: '90'
+  JIBRI_RECORDING_DIR: /config/recordings
+  JIBRI_STRIP_DOMAIN_JID: muc
+  JICOFO_RESERVATION_REST_BASE_URL: ''
+  JIGASI_BREWERY_MUC: jigasibrewery
+  JIGASI_ENABLE_SDES_SRTP: ''
+  JIGASI_HEALTH_CHECK_INTERVAL: ''
+  JIGASI_HEALTH_CHECK_SIP_URI: ''
+  JIGASI_PORT_MAX: '20050'
+  JIGASI_PORT_MIN: '20000'
+  JIGASI_SIP_KEEP_ALIVE_METHOD: ''
+  JIGASI_SIP_PORT: ''
+  JIGASI_SIP_SERVER: ''
+  JIGASI_SIP_TRANSPORT: ''
+  JIGASI_SIP_URI: '${JIGASI_SIP_URI}'
+  JIGASI_TRANSCRIBER_ADVERTISE_URL: ''
+  JIGASI_TRANSCRIBER_RECORD_AUDIO: ''
+  JIGASI_TRANSCRIBER_SEND_TXT: ''
+  JVB_BREWERY_MUC: jvbbrewery
+  JVB_ENABLE_APIS: rest
+  JVB_STUN_SERVERS: 'meet-jit-si-turnrelay.jitsi.net:443'
+  JVB_TCP_HARVESTER_DISABLED: 'true'
+  JWT_ACCEPTED_AUDIENCES: ''
+  JWT_ACCEPTED_ISSUERS: ''
+  JWT_ALLOW_EMPTY: ''
+  JWT_APP_ID: ''
+  JWT_ASAP_KEYSERVER: ''
+  JWT_AUTH_TYPE: ''
+  JWT_TOKEN_AUTH_MODULE: ''
+  LDAP_AUTH_METHOD: ''
+  LDAP_BASE: ''
+  LDAP_FILTER: ''
+  LDAP_START_TLS: ''
+  LDAP_TLS_CACERT_DIR: ''
+  LDAP_TLS_CACERT_FILE: ''
+  LDAP_TLS_CHECK_PEER: ''
+  LDAP_TLS_CIPHERS: ''
+  LDAP_URL: ''
+  LDAP_USE_TLS: ''
+  LDAP_VERSION: ''
+  LOG_LEVEL: ''
+  PUBLIC_URL: 'https://{{ .Values.web.ingress.host }}'
+  TZ: Europe/Amsterdam
+  XMPP_AUTH_DOMAIN: auth.meet.jitsi
+  XMPP_DOMAIN: meet.jitsi
+  XMPP_GUEST_DOMAIN: guest.meet.jitsi
+  XMPP_INTERNAL_MUC_DOMAIN: internal-muc.meet.jitsi
+  XMPP_INTERNAL_MUC_MODULES: ''
+  XMPP_MODULES: ''
+  XMPP_MUC_DOMAIN: muc.meet.jitsi
+  XMPP_MUC_MODULES: ''
+  XMPP_RECORDER_DOMAIN: recorder.meet.jitsi
+  XMPP_BOSH_URL_BASE: http://{{ include "jitsi.prosody.fullname" . }}:5280
+  XMPP_SERVER: {{ include "jitsi.prosody.fullname" . }}

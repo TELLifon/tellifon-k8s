@@ -1,0 +1,26 @@
+{{- range .Values.jvb.replicas }}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "jitsi.jvb.fullname" $ }}-{{ .name }}
+  labels:
+    app.kubernetes.io/jvb-name: {{ .name }}
+    {{- include "jitsi.jvb.labels" $ | nindent 4 }}
+spec:
+  type: NodePort
+  ports:
+    - port: {{ .tcp }}
+      nodePort: {{ .tcp }}
+      targetPort: tcp
+      protocol: TCP
+      name: tcp
+    - port: {{ .udp }}
+      nodePort: {{ .udp }}
+      targetPort: udp
+      protocol: UDP
+      name: udp
+  selector:
+    app.kubernetes.io/jvb-name: {{ .name }}
+    {{- include "jitsi.jvb.selectorLabels" $ | nindent 4 }}
+{{- end }}

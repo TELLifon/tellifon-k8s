@@ -1,0 +1,63 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "jitsi.jibri.fullname" . }}
+  labels:
+    {{- include "jitsi.jibri.labels" . | nindent 4 }}
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      {{- include "jitsi.jibri.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      labels:
+        {{- include "jitsi.jibri.selectorLabels" . | nindent 8 }}
+    spec:
+    {{- with .Values.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+    {{- end }}
+      serviceAccountName: {{ include "jitsi.serviceAccountName" . }}
+      securityContext:
+        {{- toYaml .Values.podSecurityContext | nindent 8 }}
+      containers:
+        - name: {{ .Chart.Name }}
+          envFrom:
+          - configMapRef:
+              name: {{ include "jitsi.fullname" . }}
+          - secretRef:
+              name: {{ include "jitsi.fullname" . }}
+          env:
+          - name: DISPLAY
+            value: :0
+          securityContext:
+            {{- toYaml .Values.securityContext | nindent 12 }}
+          image: "{{ .Values.jibri.image.repository }}:{{ .Values.jibri.image.tag }}"
+          imagePullPolicy: {{ .Values.jibri.image.pullPolicy }}
+          resources:
+            {{- toYaml .Values.jibri.resources | nindent 12 }}
+          volumeMounts:
+          - mountPath: /dev/shm
+            name: dev-shm
+          - mountPath: /dev/snd
+            name: dev-snd
+      volumes:
+      - name: dev-shm
+        hostPath:
+          path: /dev/shm
+      - name: dev-snd
+        hostPath:
+          path: /dev/snd
+      {{- with .Values.jibri.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+    {{- with .Values.jibri.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+    {{- end }}
+    {{- with .Values.jibri.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+    {{- end }}
